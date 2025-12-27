@@ -1,8 +1,11 @@
 package io.github.yash_gadgil.tradingbot.core.event;
 
+import io.github.yash_gadgil.tradingbot.core.model.Trade;
+
+import java.time.Instant;
+
 public record TradeEvent(
-        String symbol,
-        Double price,
-        Integer size
+        Instant timestamp,
+        Trade trade
 ) implements MarketDataEvent {}
 
