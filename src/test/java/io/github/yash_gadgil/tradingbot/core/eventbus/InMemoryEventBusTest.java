@@ -29,7 +29,7 @@ public class InMemoryEventBusTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        bus.subscribe(TestEvent.class, _ -> latch.countDown());
+        bus.subscribe(TestEvent.class, t -> latch.countDown());
         bus.publish(new TestEvent(0));
 
         assertTrue(latch.await(1, TimeUnit.SECONDS));

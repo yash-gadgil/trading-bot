@@ -22,13 +22,13 @@ public class EventBusReentryTest {
         CountDownLatch latch = new CountDownLatch(2);
 
 
-        bus.subscribe(EventA.class, _ -> {
+        bus.subscribe(EventA.class, e -> {
             seen.add("A");
             bus.publish(new EventB());
             latch.countDown();
         });
 
-        bus.subscribe(EventB.class, _ -> {
+        bus.subscribe(EventB.class, e -> {
             seen.add("B");
             latch.countDown();
         });

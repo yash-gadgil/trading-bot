@@ -1,7 +1,7 @@
 package io.github.yash_gadgil.tradingbot.app.marketdata;
 
 import io.github.yash_gadgil.tradingbot.core.eventbus.EventBus;
-import io.github.yash_gadgil.tradingbot.core.marketdata.MarketDataStreamingServiceInterface;
+import io.github.yash_gadgil.tradingbot.core.marketdata.MarketDataStreamingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MarketDataStreamingService implements SmartLifecycle {
 
-    private final MarketDataStreamingServiceInterface marketDataStreamingService;
+    private final MarketDataStreamingProvider marketDataStreamingService;
     private static final Logger logger = LoggerFactory.getLogger(MarketDataStreamingService.class);
 
     private final EventBus eventBus;
 
     @Autowired
-    public MarketDataStreamingService(MarketDataStreamingServiceInterface marketDataStreamingServiceInterface, EventBus eventBus) {
+    public MarketDataStreamingService(MarketDataStreamingProvider marketDataStreamingServiceInterface, EventBus eventBus) {
         this.marketDataStreamingService = marketDataStreamingServiceInterface;
         this.eventBus = eventBus;
     }

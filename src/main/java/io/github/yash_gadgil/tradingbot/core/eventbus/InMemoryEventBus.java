@@ -13,10 +13,11 @@ public class InMemoryEventBus implements EventBus {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+
     @Override
     public <E extends Event> void subscribe(Class<E> eventType, EventHandler<? super E> handler) {
         handlers
-                .computeIfAbsent(eventType, _ -> new CopyOnWriteArrayList<>())
+                .computeIfAbsent(eventType, h -> new CopyOnWriteArrayList<>())
                 .add(handler);
     }
 
@@ -33,7 +34,11 @@ public class InMemoryEventBus implements EventBus {
         if (subs == null) return;
 
         for (EventHandler<?> h : subs) {
-            ( (EventHandler<Event>) h).handle(event);
+            try {
+                ((EventHandler<Event>) h).handle(event);
+            } catch (Exception e) {
+                System.err.println("Error handling event: " + e.getMessage());
+            }
         }
     }
 

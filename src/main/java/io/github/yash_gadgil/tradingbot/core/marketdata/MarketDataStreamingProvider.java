@@ -4,7 +4,7 @@ import io.github.yash_gadgil.tradingbot.core.event.MarketDataEvent;
 
 import java.util.function.Consumer;
 
-public interface MarketDataStreamingServiceInterface {
+public interface MarketDataStreamingProvider {
 
     void connect();
 

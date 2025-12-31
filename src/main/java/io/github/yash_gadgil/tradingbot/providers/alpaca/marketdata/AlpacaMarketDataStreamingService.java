@@ -3,7 +3,9 @@ package io.github.yash_gadgil.tradingbot.providers.alpaca.marketdata;
 import io.github.yash_gadgil.tradingbot.core.event.CandleStickEvent;
 import io.github.yash_gadgil.tradingbot.core.event.MarketDataEvent;
 import io.github.yash_gadgil.tradingbot.core.event.TradeEvent;
-import io.github.yash_gadgil.tradingbot.core.marketdata.MarketDataStreamingServiceInterface;
+import io.github.yash_gadgil.tradingbot.core.marketdata.MarketDataStreamingProvider;
+import io.github.yash_gadgil.tradingbot.core.model.CandleStick;
+import io.github.yash_gadgil.tradingbot.core.model.Trade;
 import net.jacobpeterson.alpaca.model.websocket.marketdata.streams.stock.model.bar.StockBarMessage;
 import net.jacobpeterson.alpaca.model.websocket.marketdata.streams.stock.model.limituplimitdownband.StockLimitUpLimitDownBandMessage;
 import net.jacobpeterson.alpaca.model.websocket.marketdata.streams.stock.model.quote.StockQuoteMessage;
@@ -17,7 +19,7 @@ import net.jacobpeterson.alpaca.websocket.marketdata.streams.stock.StockMarketDa
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class AlpacaMarketDataStreamingService implements MarketDataStreamingServiceInterface {
+public class AlpacaMarketDataStreamingService implements MarketDataStreamingProvider {
 
     private final StockMarketDataWebsocket marketDataWebsocket;
     private final Set<String> symbols;
@@ -28,10 +30,6 @@ public class AlpacaMarketDataStreamingService implements MarketDataStreamingServ
         marketDataWebsocket.setListener(new AlpacaStockMarketDataListener());
         this.marketDataWebsocket = marketDataWebsocket;
         this.symbols = symbols;
-    }
-
-    public Set<String> getSymbols() {
-        return symbols;
     }
 
     @Override
@@ -62,11 +60,14 @@ public class AlpacaMarketDataStreamingService implements MarketDataStreamingServ
 
         @Override
         public void onTrade(StockTradeMessage stockTradeMessage) {
-            if (publishEvent != null) {
+                if (publishEvent != null) {
                 publishEvent.accept(new TradeEvent(
-                        stockTradeMessage.getSymbol(),
-                        stockTradeMessage.getPrice(),
-                        stockTradeMessage.getSize()
+                        stockTradeMessage.getTimestamp().toInstant(),
+                        new Trade(
+                            stockTradeMessage.getSymbol(),
+                            stockTradeMessage.getPrice(),
+                            stockTradeMessage.getSize()
+                        )
                 ));
             }
         }
@@ -80,12 +81,15 @@ public class AlpacaMarketDataStreamingService implements MarketDataStreamingServ
         public void onMinuteBar(StockBarMessage stockBarMessage) {
             if (publishEvent != null) {
                 publishEvent.accept(new CandleStickEvent(
-                        stockBarMessage.getSymbol(),
-                        stockBarMessage.getVolume(),
-                        stockBarMessage.getHigh(),
-                        stockBarMessage.getLow(),
-                        stockBarMessage.getOpen(),
-                        stockBarMessage.getClose()
+                        stockBarMessage.getTimestamp().toInstant(),
+                        new CandleStick(
+                            stockBarMessage.getSymbol(),
+                            stockBarMessage.getVolume(),
+                            stockBarMessage.getHigh(),
+                            stockBarMessage.getLow(),
+                            stockBarMessage.getOpen(),
+                            stockBarMessage.getClose()
+                        )
                 ));
             }
         }
