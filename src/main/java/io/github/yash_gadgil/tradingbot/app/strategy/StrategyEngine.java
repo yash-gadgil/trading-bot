@@ -4,6 +4,7 @@ import io.github.yash_gadgil.tradingbot.core.event.CandleStickEvent;
 import io.github.yash_gadgil.tradingbot.core.event.TradeEvent;
 import io.github.yash_gadgil.tradingbot.core.eventbus.EventBus;
 import io.github.yash_gadgil.tradingbot.core.marketdata.HistoricMarketDataProvider;
+import io.github.yash_gadgil.tradingbot.core.strategy.FadeTheMoveStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ public class StrategyEngine implements SmartLifecycle {
 
     private final HistoricMarketDataProvider historicMarketDataProvider;
     private final EventBus eventBus;
+    
+    private final FadeTheMoveStrategy fadeTheMoveStrategy = new FadeTheMoveStrategy(14, 2.0);
 
     private static final Logger logger = LoggerFactory.getLogger(StrategyEngine.class);
 
@@ -27,12 +30,16 @@ public class StrategyEngine implements SmartLifecycle {
     @Override
     public void start() {
 
+        fadeTheMoveStrategy.setEventPublisher(eventBus::publish);
+
         eventBus.subscribe(TradeEvent.class, tradeEvent -> {
             logger.info(tradeEvent.toString());
         });
 
         eventBus.subscribe(CandleStickEvent.class, candleStickEvent -> {
             logger.info(candleStickEvent.toString());
+
+            fadeTheMoveStrategy.onEvent(candleStickEvent);
         });
 
         logger.info("starting Strategy Engine");
