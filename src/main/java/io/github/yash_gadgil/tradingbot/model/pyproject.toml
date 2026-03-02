@@ -1,0 +1,23 @@
+[project]
+name = "model"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "stable-baselines3",
+    "gymnasium",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "matplotlib-inline",
+    "yfinance",
+    "flask",
+    "onnx>=1.21.0",
+    "onnxscript>=0.7.0",
+]
+
+[dependency-groups]
+dev = [
+    "onnxruntime>=1.25.0",
+]
