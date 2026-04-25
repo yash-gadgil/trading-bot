@@ -1,0 +1,1 @@
+ALTER TABLE strategy_signals ADD COLUMN IF NOT EXISTS confidence DOUBLE PRECISION;
