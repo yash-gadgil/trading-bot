@@ -1,0 +1,237 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT count(*) AS \"Signals\" FROM strategy_signals WHERE $__timeFilter(time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Signals fired",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT count(*) AS \"Trades\" FROM simulated_trades WHERE $__timeFilter(exit_time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Trades closed",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "yellow", "value": 40}, {"color": "green", "value": 55}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT 100.0 * sum(CASE WHEN pnl >= 0 THEN 1 ELSE 0 END) / NULLIF(count(*), 0) AS \"Win rate\" FROM simulated_trades WHERE $__timeFilter(exit_time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Win rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 0}]}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT coalesce(sum(pnl), 0) AS \"Total PnL\" FROM simulated_trades WHERE $__timeFilter(exit_time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Total realised PnL",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "none"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 0},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT coalesce(sum(CASE WHEN pnl > 0 THEN pnl ELSE 0 END) / NULLIF(sum(CASE WHEN pnl < 0 THEN -pnl ELSE 0 END), 0), 0) AS \"Profit factor\" FROM simulated_trades WHERE $__timeFilter(exit_time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Profit factor",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "yellow", "value": 0.5}, {"color": "green", "value": 1.0}]}, "unit": "none"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "id": 6,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT coalesce(avg(sharpe_ratio), 0) AS \"Avg Sharpe\" FROM backtest_runs WHERE $__timeFilter(started_at) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id)",
+        "refId": "A"
+      }],
+      "title": "Avg Sharpe (recent runs)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 0, "stacking": {"mode": "normal"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 4},
+      "id": 7,
+      "options": {"legend": {"displayMode": "table", "placement": "right"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, signal_type AS metric, count(*) AS value FROM strategy_signals WHERE $__timeFilter(time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id) GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Signal frequency by type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"hideFrom": {"legend": false, "tooltip": false, "viz": false}}}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 4},
+      "id": 8,
+      "options": {"displayLabels": ["percent"], "legend": {"displayMode": "table", "placement": "right", "values": ["value"]}, "pieType": "donut", "reduceOptions": {"calcs": ["sum"], "fields": "", "values": true}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT signal_type AS metric, count(*) AS value FROM strategy_signals WHERE $__timeFilter(time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id) GROUP BY signal_type",
+        "refId": "A"
+      }],
+      "title": "Signal type distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "stepAfter", "lineWidth": 2, "pointSize": 4, "showPoints": "never"}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 13},
+      "id": 9,
+      "options": {"legend": {"displayMode": "table", "placement": "right", "values": ["lastNotNull"]}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time AS time, strategy_id || ' (' || run_id || ')' AS metric, equity AS value FROM equity_snapshots WHERE $__timeFilter(time) AND strategy_id = COALESCE(NULLIF('$strategy', '$__all'), strategy_id) ORDER BY time",
+        "refId": "A"
+      }],
+      "title": "Theoretical equity curves (overlay backtest runs)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "yellow", "value": 40}, {"color": "green", "value": 55}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 23},
+      "id": 10,
+      "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": true}, "showUnfilled": true},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT strategy_id || ' / ' || symbol AS metric, 100.0 * sum(CASE WHEN pnl >= 0 THEN 1 ELSE 0 END) / NULLIF(count(*), 0) AS value FROM simulated_trades WHERE $__timeFilter(exit_time) GROUP BY strategy_id, symbol ORDER BY value DESC",
+        "refId": "A"
+      }],
+      "title": "Win rate by strategy / symbol",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 0}]}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 23},
+      "id": 11,
+      "options": {"displayMode": "gradient", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": true}, "showUnfilled": true},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT strategy_id || ' / ' || symbol AS metric, sum(pnl) AS value FROM simulated_trades WHERE $__timeFilter(exit_time) GROUP BY strategy_id, symbol ORDER BY value DESC",
+        "refId": "A"
+      }],
+      "title": "PnL by strategy / symbol",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"custom": {"align": "auto"}, "unit": "short"}, "overrides": [
+        {"matcher": {"id": "byName", "options": "Total PnL"}, "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "gradient"}}]},
+        {"matcher": {"id": "byName", "options": "Total return %"}, "properties": [{"id": "unit", "value": "percent"}]},
+        {"matcher": {"id": "byName", "options": "Win rate %"}, "properties": [{"id": "unit", "value": "percent"}]},
+        {"matcher": {"id": "byName", "options": "Max drawdown %"}, "properties": [{"id": "unit", "value": "percent"}]}
+      ]},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 32},
+      "id": 12,
+      "options": {"showHeader": true},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT started_at AS \"Started\", strategy_id AS \"Strategy\", symbols AS \"Symbols\", total_trades AS \"Trades\", win_rate_pct AS \"Win rate %\", total_return_pct AS \"Total return %\", final_equity - initial_capital AS \"Total PnL\", sharpe_ratio AS \"Sharpe\", max_drawdown_pct AS \"Max drawdown %\", profit_factor AS \"Profit factor\" FROM backtest_runs WHERE $__timeFilter(started_at) ORDER BY started_at DESC LIMIT 50",
+        "refId": "A"
+      }],
+      "title": "Recent backtest runs",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["trading-bot", "strategy"],
+  "templating": {
+    "list": [{
+      "current": {"selected": false, "text": "All", "value": "$__all"},
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "definition": "SELECT DISTINCT strategy_id FROM strategy_signals UNION SELECT DISTINCT strategy_id FROM simulated_trades ORDER BY 1",
+      "hide": 0,
+      "includeAll": true,
+      "label": "Strategy",
+      "multi": false,
+      "name": "strategy",
+      "options": [],
+      "query": "SELECT DISTINCT strategy_id FROM strategy_signals UNION SELECT DISTINCT strategy_id FROM simulated_trades ORDER BY 1",
+      "refresh": 2,
+      "regex": "",
+      "skipUrlSync": false,
+      "sort": 1,
+      "type": "query"
+    }]
+  },
+  "time": {"from": "now-30d", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Trading Bot - Strategy Analysis",
+  "uid": "tb-strategy-analysis",
+  "version": 1,
+  "weekStart": ""
+}

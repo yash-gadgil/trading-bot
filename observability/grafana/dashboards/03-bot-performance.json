@@ -1,0 +1,214 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["mean"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time_bucket('1 minute', time) AS time, count(*) / 60.0 AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'candle' GROUP BY 1 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Candle ingest rate (avg)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "ms"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY latency_ms) AS \"p50 latency\" FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal'",
+        "refId": "A"
+      }],
+      "title": "Signal latency p50",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 50}, {"color": "red", "value": 200}]}, "unit": "ms"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT percentile_cont(0.99) WITHIN GROUP (ORDER BY latency_ms) AS \"p99 latency\" FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal'",
+        "refId": "A"
+      }],
+      "title": "Signal latency p99",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT count(*) AS \"Errors (1h)\" FROM engine_events WHERE time > NOW() - INTERVAL '1 hour' AND event_type = 'error'",
+        "refId": "A"
+      }],
+      "title": "Errors (last hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 0},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT count(*) AS \"Signals (1h)\" FROM strategy_signals WHERE time > NOW() - INTERVAL '1 hour'",
+        "refId": "A"
+      }],
+      "title": "Signals (last hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "id": 6,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT EXTRACT(EPOCH FROM (NOW() - max(time))) AS \"Last bar age\" FROM candles",
+        "refId": "A"
+      }],
+      "title": "Time since last bar",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "linear", "lineWidth": 1, "stacking": {"mode": "normal"}}, "unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 4},
+      "id": 7,
+      "options": {"legend": {"displayMode": "table", "placement": "right"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, component AS metric, count(*)::float / GREATEST(EXTRACT(EPOCH FROM '$__interval'::interval), 1) AS value FROM engine_events WHERE $__timeFilter(time) GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Event throughput by component (events/sec)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"custom": {"hideFrom": {"legend": false, "tooltip": false, "viz": false}, "scaleDistribution": {"type": "linear"}}}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 4},
+      "id": 8,
+      "options": {"calculate": false, "cellGap": 1, "color": {"exponent": 0.5, "fill": "dark-orange", "mode": "scheme", "reverse": false, "scale": "exponential", "scheme": "Spectral", "steps": 64}, "exemplars": {"color": "rgba(255,0,255,0.7)"}, "filterValues": {"le": 1e-9}, "legend": {"show": true}, "rowsFrame": {"layout": "auto"}, "tooltip": {"mode": "single", "showColorScale": false, "yHistogram": false}, "yAxis": {"axisPlacement": "left", "reverse": false, "unit": "ms"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, latency_ms AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal' AND latency_ms IS NOT NULL ORDER BY time",
+        "refId": "A"
+      }],
+      "title": "Signal latency heatmap (bar receipt -> signal emit, ms)",
+      "type": "heatmap"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 0, "lineInterpolation": "linear", "lineWidth": 2}, "unit": "ms"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+      "id": 9,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+          "format": "time_series", "rawQuery": true,
+          "rawSql": "SELECT time_bucket('$__interval', time) AS time, 'p50' AS metric, percentile_cont(0.5) WITHIN GROUP (ORDER BY latency_ms) AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal' AND latency_ms IS NOT NULL GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+          "format": "time_series", "rawQuery": true,
+          "rawSql": "SELECT time_bucket('$__interval', time) AS time, 'p95' AS metric, percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms) AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal' AND latency_ms IS NOT NULL GROUP BY 1 ORDER BY 1",
+          "refId": "B"
+        },
+        {
+          "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+          "format": "time_series", "rawQuery": true,
+          "rawSql": "SELECT time_bucket('$__interval', time) AS time, 'p99' AS metric, percentile_cont(0.99) WITHIN GROUP (ORDER BY latency_ms) AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'signal' AND latency_ms IS NOT NULL GROUP BY 1 ORDER BY 1",
+          "refId": "C"
+        }
+      ],
+      "title": "Signal latency percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "custom": {"axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 0}, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 1}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+      "id": 10,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series", "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, component AS metric, count(*) AS value FROM engine_events WHERE $__timeFilter(time) AND event_type = 'error' GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Errors by component",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "filterable": true}, "unit": "short"}, "overrides": [
+        {"matcher": {"id": "byName", "options": "Latency (ms)"}, "properties": [{"id": "unit", "value": "ms"}]}
+      ]},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 22},
+      "id": 11,
+      "options": {"showHeader": true},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT time AS \"Time\", component AS \"Component\", event_type AS \"Event\", symbol AS \"Symbol\", latency_ms AS \"Latency (ms)\", error_message AS \"Error\" FROM engine_events WHERE $__timeFilter(time) AND (event_type = 'error' OR latency_ms > 100) ORDER BY time DESC LIMIT 100",
+        "refId": "A"
+      }],
+      "title": "Recent errors / slow events (>100ms)",
+      "type": "table"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["trading-bot", "performance"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Trading Bot - Engine Performance",
+  "uid": "tb-bot-performance",
+  "version": 1,
+  "weekStart": ""
+}
