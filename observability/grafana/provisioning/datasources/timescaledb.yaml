@@ -1,0 +1,21 @@
+apiVersion: 1
+
+datasources:
+  - name: TimescaleDB
+    type: postgres
+    uid: tradingbot-timescaledb
+    access: proxy
+    url: timescaledb:5432
+    user: tradingbot
+    secureJsonData:
+      password: tradingbot
+    jsonData:
+      database: tradingbot
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: true
+      maxOpenConns: 8
+      maxIdleConns: 4
+      connMaxLifetime: 14400
+    isDefault: true
+    editable: true

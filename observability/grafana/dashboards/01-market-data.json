@@ -1,0 +1,159 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 4, "showPoints": "never", "spanNulls": false}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 12, "w": 18, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series",
+        "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, symbol AS metric, last(close, time) AS value FROM candles WHERE $__timeFilter(time) AND symbol IN ($symbol) GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Close price by symbol",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table",
+        "rawQuery": true,
+        "rawSql": "SELECT count(*) AS \"Bars (last hr)\" FROM candles WHERE time > NOW() - INTERVAL '1 hour'",
+        "refId": "A"
+      }],
+      "title": "Candles ingested (last hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 4},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table",
+        "rawQuery": true,
+        "rawSql": "SELECT count(DISTINCT symbol) AS \"Symbols active\" FROM candles WHERE time > NOW() - INTERVAL '1 day'",
+        "refId": "A"
+      }],
+      "title": "Symbols active (24h)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 0}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "id": 4,
+      "options": {"legend": {"displayMode": "hidden"}, "tooltip": {"mode": "single"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series",
+        "rawQuery": true,
+        "rawSql": "SELECT time_bucket('1 hour', time) AS time, count(*) AS value FROM candles WHERE $__timeFilter(time) GROUP BY 1 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Bars per hour",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "bars", "fillOpacity": 60, "lineWidth": 0, "pointSize": 4, "showPoints": "never"}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "id": 5,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series",
+        "rawQuery": true,
+        "rawSql": "SELECT time_bucket('$__interval', time) AS time, symbol AS metric, sum(volume) AS value FROM candles WHERE $__timeFilter(time) AND symbol IN ($symbol) GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Volume by symbol",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 0, "lineInterpolation": "linear", "lineWidth": 2}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "id": 6,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "time_series",
+        "rawQuery": true,
+        "rawSql": "WITH per_bar AS (SELECT time, symbol, (high - low) / NULLIF(open, 0) * 100.0 AS range_pct FROM candles WHERE $__timeFilter(time) AND symbol IN ($symbol)) SELECT time_bucket('$__interval', time) AS time, symbol AS metric, avg(range_pct) AS value FROM per_bar GROUP BY 1, 2 ORDER BY 1",
+        "refId": "A"
+      }],
+      "title": "Avg intra-bar range % (proxy for volatility)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "id": 7,
+      "options": {"showHeader": true},
+      "pluginVersion": "11.4.0",
+      "targets": [{
+        "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+        "format": "table",
+        "rawQuery": true,
+        "rawSql": "WITH latest AS (SELECT symbol, last(close, time) AS price, last(volume, time) AS volume, max(time) AS as_of FROM candles WHERE $__timeFilter(time) GROUP BY symbol) SELECT symbol AS \"Symbol\", price AS \"Last price\", volume AS \"Last bar volume\", as_of AS \"As of\" FROM latest ORDER BY symbol",
+        "refId": "A"
+      }],
+      "title": "Latest snapshot per symbol",
+      "type": "table"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["trading-bot", "market-data"],
+  "templating": {
+    "list": [{
+      "current": {"selected": false, "text": "All", "value": "$__all"},
+      "datasource": {"type": "postgres", "uid": "tradingbot-timescaledb"},
+      "definition": "SELECT DISTINCT symbol FROM candles ORDER BY symbol",
+      "hide": 0,
+      "includeAll": true,
+      "label": "Symbol",
+      "multi": true,
+      "name": "symbol",
+      "options": [],
+      "query": "SELECT DISTINCT symbol FROM candles ORDER BY symbol",
+      "refresh": 2,
+      "regex": "",
+      "skipUrlSync": false,
+      "sort": 1,
+      "type": "query"
+    }]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Trading Bot - Market Data",
+  "uid": "tb-market-data",
+  "version": 1,
+  "weekStart": ""
+}
