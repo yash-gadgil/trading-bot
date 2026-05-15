@@ -1,0 +1,11 @@
+target/
+**/.venv/
+**/__pycache__/
+.git/
+.idea/
+.env
+*.iml
+backtest-report.html
+docs/
+observability/
+**/*.zip
